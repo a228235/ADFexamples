@@ -2,7 +2,7 @@
 	"name": "SSQL_DS",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "selfhost_SSQL_LS",
+			"referenceName": "selfhost_IR_conn",
 			"type": "LinkedServiceReference"
 		},
 		"annotations": [],
