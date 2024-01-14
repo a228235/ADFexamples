@@ -2,7 +2,9 @@
 	"name": "AzSQL_LS",
 	"type": "Microsoft.DataFactory/factories/linkedservices",
 	"properties": {
-		"annotations": [],
+		"annotations": [
+			"Azure Dev"
+		],
 		"type": "SqlServer",
 		"typeProperties": {
 			"connectionString": "integrated security=False;data source=mysqlserver228235.database.windows.net;initial catalog=sampleDatabase;user id=azureuser",
