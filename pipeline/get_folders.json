@@ -5,7 +5,7 @@
 		"activities": [
 			{
 				"name": "Get Metadata1",
-				"description": "metadata",
+				"description": "metadata from",
 				"type": "GetMetadata",
 				"dependsOn": [],
 				"policy": {
