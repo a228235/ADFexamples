@@ -1,0 +1,242 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "Srilatha-AzureADF"
+		},
+		"ADLS_1_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'ADLS_1'"
+		},
+		"ADLS_LS_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'ADLS_LS'"
+		},
+		"ASQL_LS_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'ASQL_LS'"
+		},
+		"AzSQL_LS_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzSQL_LS'"
+		},
+		"AzureBlob_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzureBlob'"
+		},
+		"parameter_LS_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'parameter_LS'",
+			"defaultValue": "Integrated Security=False;Data Source=@{linkedService().servername};Initial Catalog=@{linkedService().DBname};User ID=@{linkedService().username};Password=@{linkedService().password}"
+		},
+		"selfhost_IR_conn_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'selfhost_IR_conn'"
+		},
+		"selfhost_SSQL_LS_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'selfhost_SSQL_LS'"
+		},
+		"ADLS_1_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://srilathadlsgen2.dfs.core.windows.net/"
+		},
+		"ADLS_LS_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://srilathadlsgen2.dfs.core.windows.net/"
+		},
+		"RestAPI_LS_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "http://restapi.adequateshop.com"
+		},
+		"Rest_Token_Pages_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "http://restapi.adequateshop.com"
+		},
+		"TW_SQLDB_TXT_properties_pipeline_parameters_Parameter_1": {
+			"type": "string",
+			"defaultValue": "@trigger().startTime"
+		},
+		"event_storgae_properties_CopyPipeline_sqldb_txt_parameters_Parameter_1": {
+			"type": "string",
+			"defaultValue": "@trigger().startTime"
+		},
+		"event_storgae_properties_typeProperties_scope": {
+			"type": "string",
+			"defaultValue": "/subscriptions/e3fdc694-417b-44fa-9f88-541270829fbf/resourceGroups/AzureDev/providers/Microsoft.Storage/storageAccounts/srilathadlsgen2"
+		},
+		"event_trigger_txt_properties_typeProperties_scope": {
+			"type": "string",
+			"defaultValue": "/subscriptions/e3fdc694-417b-44fa-9f88-541270829fbf/resourceGroups/AzureDev/providers/Microsoft.Storage/storageAccounts/srilathadlsgen2"
+		},
+		"srilu-selfhost-IR_properties_typeProperties_linkedInfo_resourceId": {
+			"type": "string",
+			"defaultValue": "/subscriptions/e3fdc694-417b-44fa-9f88-541270829fbf/resourcegroups/AzureDev/providers/Microsoft.DataFactory/factories/Srilatha-AzureADF/integrationruntimes/selfhosted-srilatha"
+		},
+		"containerUri": {
+			"type": "string",
+			"metadata": "URI to storage account containing linked ARM templates"
+		},
+		"containerSasToken": {
+			"type": "string",
+			"metadata": "Sas token to storage account containing linked ARM templates"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "Srilatha-AzureADF_ArmTemplate_0",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_0.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"ADLS_1_accountKey": {
+						"value": "[parameters('ADLS_1_accountKey')]"
+					},
+					"ADLS_LS_accountKey": {
+						"value": "[parameters('ADLS_LS_accountKey')]"
+					},
+					"ASQL_LS_connectionString": {
+						"value": "[parameters('ASQL_LS_connectionString')]"
+					},
+					"AzSQL_LS_connectionString": {
+						"value": "[parameters('AzSQL_LS_connectionString')]"
+					},
+					"AzureBlob_connectionString": {
+						"value": "[parameters('AzureBlob_connectionString')]"
+					},
+					"ADLS_1_properties_typeProperties_url": {
+						"value": "[parameters('ADLS_1_properties_typeProperties_url')]"
+					},
+					"ADLS_LS_properties_typeProperties_url": {
+						"value": "[parameters('ADLS_LS_properties_typeProperties_url')]"
+					},
+					"RestAPI_LS_properties_typeProperties_url": {
+						"value": "[parameters('RestAPI_LS_properties_typeProperties_url')]"
+					},
+					"Rest_Token_Pages_properties_typeProperties_url": {
+						"value": "[parameters('Rest_Token_Pages_properties_typeProperties_url')]"
+					},
+					"srilu-selfhost-IR_properties_typeProperties_linkedInfo_resourceId": {
+						"value": "[parameters('srilu-selfhost-IR_properties_typeProperties_linkedInfo_resourceId')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "Srilatha-AzureADF_ArmTemplate_1",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_1.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"parameter_LS_connectionString": {
+						"value": "[parameters('parameter_LS_connectionString')]"
+					},
+					"selfhost_IR_conn_connectionString": {
+						"value": "[parameters('selfhost_IR_conn_connectionString')]"
+					},
+					"selfhost_SSQL_LS_connectionString": {
+						"value": "[parameters('selfhost_SSQL_LS_connectionString')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'Srilatha-AzureADF_ArmTemplate_0')]"
+			]
+		},
+		{
+			"name": "Srilatha-AzureADF_ArmTemplate_2",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_2.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'Srilatha-AzureADF_ArmTemplate_1')]"
+			]
+		},
+		{
+			"name": "Srilatha-AzureADF_ArmTemplate_3",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_3.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'Srilatha-AzureADF_ArmTemplate_2')]"
+			]
+		},
+		{
+			"name": "Srilatha-AzureADF_ArmTemplate_4",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_4.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"event_storgae_properties_CopyPipeline_sqldb_txt_parameters_Parameter_1": {
+						"value": "[parameters('event_storgae_properties_CopyPipeline_sqldb_txt_parameters_Parameter_1')]"
+					},
+					"event_storgae_properties_typeProperties_scope": {
+						"value": "[parameters('event_storgae_properties_typeProperties_scope')]"
+					},
+					"event_trigger_txt_properties_typeProperties_scope": {
+						"value": "[parameters('event_trigger_txt_properties_typeProperties_scope')]"
+					},
+					"TW_SQLDB_TXT_properties_pipeline_parameters_Parameter_1": {
+						"value": "[parameters('TW_SQLDB_TXT_properties_pipeline_parameters_Parameter_1')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'Srilatha-AzureADF_ArmTemplate_3')]"
+			]
+		}
+	]
+}

@@ -1,0 +1,66 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "Srilatha-AzureADF"
+		},
+		"ADLS_1_accountKey": {
+			"value": ""
+		},
+		"ADLS_LS_accountKey": {
+			"value": ""
+		},
+		"ASQL_LS_connectionString": {
+			"value": ""
+		},
+		"AzSQL_LS_connectionString": {
+			"value": ""
+		},
+		"AzureBlob_connectionString": {
+			"value": ""
+		},
+		"parameter_LS_connectionString": {
+			"value": "Integrated Security=False;Data Source=@{linkedService().servername};Initial Catalog=@{linkedService().DBname};User ID=@{linkedService().username};Password=@{linkedService().password}"
+		},
+		"selfhost_IR_conn_connectionString": {
+			"value": ""
+		},
+		"selfhost_SSQL_LS_connectionString": {
+			"value": ""
+		},
+		"ADLS_1_properties_typeProperties_url": {
+			"value": "https://srilathadlsgen2.dfs.core.windows.net/"
+		},
+		"ADLS_LS_properties_typeProperties_url": {
+			"value": "https://srilathadlsgen2.dfs.core.windows.net/"
+		},
+		"RestAPI_LS_properties_typeProperties_url": {
+			"value": "http://restapi.adequateshop.com"
+		},
+		"Rest_Token_Pages_properties_typeProperties_url": {
+			"value": "http://restapi.adequateshop.com"
+		},
+		"TW_SQLDB_TXT_properties_pipeline_parameters_Parameter_1": {
+			"value": "@trigger().startTime"
+		},
+		"event_storgae_properties_CopyPipeline_sqldb_txt_parameters_Parameter_1": {
+			"value": "@trigger().startTime"
+		},
+		"event_storgae_properties_typeProperties_scope": {
+			"value": "/subscriptions/e3fdc694-417b-44fa-9f88-541270829fbf/resourceGroups/AzureDev/providers/Microsoft.Storage/storageAccounts/srilathadlsgen2"
+		},
+		"event_trigger_txt_properties_typeProperties_scope": {
+			"value": "/subscriptions/e3fdc694-417b-44fa-9f88-541270829fbf/resourceGroups/AzureDev/providers/Microsoft.Storage/storageAccounts/srilathadlsgen2"
+		},
+		"srilu-selfhost-IR_properties_typeProperties_linkedInfo_resourceId": {
+			"value": "/subscriptions/e3fdc694-417b-44fa-9f88-541270829fbf/resourcegroups/AzureDev/providers/Microsoft.DataFactory/factories/Srilatha-AzureADF/integrationruntimes/selfhosted-srilatha"
+		},
+		"containerUri": {
+			"value": ""
+		},
+		"containerSasToken": {
+			"value": ""
+		}
+	}
+}

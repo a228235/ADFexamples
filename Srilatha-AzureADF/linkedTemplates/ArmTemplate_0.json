@@ -1,0 +1,757 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "Srilatha-AzureADF"
+		},
+		"ADLS_1_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'ADLS_1'"
+		},
+		"ADLS_LS_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'ADLS_LS'"
+		},
+		"ASQL_LS_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'ASQL_LS'"
+		},
+		"AzSQL_LS_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzSQL_LS'"
+		},
+		"AzureBlob_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzureBlob'"
+		},
+		"ADLS_1_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://srilathadlsgen2.dfs.core.windows.net/"
+		},
+		"ADLS_LS_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://srilathadlsgen2.dfs.core.windows.net/"
+		},
+		"RestAPI_LS_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "http://restapi.adequateshop.com"
+		},
+		"Rest_Token_Pages_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "http://restapi.adequateshop.com"
+		},
+		"srilu-selfhost-IR_properties_typeProperties_linkedInfo_resourceId": {
+			"type": "string",
+			"defaultValue": "/subscriptions/e3fdc694-417b-44fa-9f88-541270829fbf/resourcegroups/AzureDev/providers/Microsoft.DataFactory/factories/Srilatha-AzureADF/integrationruntimes/selfhosted-srilatha"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/ADF_teams_msgs')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "set JSON",
+						"type": "SetVariable",
+						"dependsOn": [],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "Messagecard",
+							"value": {
+								"value": "{\n    \"@type\": \"MessageCard\",\n    \"@context\": \"http://schema.org/extensions\",\n    \"themeColor\": \"0076D7\",\n    \"summary\": \"Pipeline status alert message​​​​\",\n    \"sections\": [\n        {\n            \"activityTitle\": \"Pipeline execution alert​​​​\",\n            \"facts\": [\n                {\n                    \"name\": \"Subscription Id:\",\n                    \"value\": \"@{pipeline().parameters.subscription}\"\n                },\n                {\n                    \"name\": \"Resource Group:\",\n                    \"value\": \"@{pipeline().parameters.resourceGroup}\"\n                },\n                {\n                    \"name\": \"Data Factory Name:\",\n                    \"value\": \"@{pipeline().DataFactory}\"\n                },\n                {\n                    \"name\": \"Pipeline RunId:\",\n                    \"value\": \"@{pipeline().parameters.runId}\"\n                },\n                {\n                    \"name\": \"Pipline Name:\",\n                    \"value\": \"@{pipeline().parameters.name}\"\n                },\n                {\n                    \"name\": \"Pipeline Status:\",\n                    \"value\": \"@{pipeline().parameters.status}\"\n                },\n                {\n                    \"name\": \"Execution Start Time (UTC):\",\n                    \"value\": \"@{pipeline().parameters.triggerTime}\"\n                },\n                {\n                    \"name\": \"Execution Finish Time (UTC):\",\n                    \"value\": \"@{pipeline().parameters.executionEndTime}\"\n                },\n                {\n                    \"name\": \"Execution Duration (s):\",\n                    \"value\": \"@{pipeline().parameters.runDuration}\"\n                },\n                {\n                    \"name\": \"Message:\",\n                    \"value\": \"@{pipeline().parameters.message}\"\n                },\n                {\n                    \"name\": \"Notification Time (UTC):\",\n                    \"value\": \"@{utcnow()}\"\n                }\n            ],\n            \"markdown\": true\n        }\n    ],\n    \"potentialAction\": [\n        {\n            \"@type\": \"OpenUri\",\n            \"name\": \"View pipeline run\",\n            \"targets\": [\n                {\n                    \"os\": \"default\",\n                    \"uri\": \"@{concat('https://synapse.azure.com/monitoring/pipelineruns/',pipeline().parameters.runId,'?factory=/subscriptions/',pipeline().parameters.subscription,'/resourceGroups/',pipeline().parameters.resourceGroup,'/providers/Microsoft.DataFactory/factories/',pipeline().DataFactory)}\"\n                }\n            ]\n        }\n    ]\n}",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "Invoke Teams Webhook Url",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "set JSON",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "@pipeline().parameters.webhhok_url",
+								"type": "Expression"
+							},
+							"method": "POST",
+							"headers": {},
+							"body": {
+								"value": "@json(variables('Messagecard'))",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"webhhok_url": {
+						"type": "string",
+						"defaultValue": "https://synh.webhook.office.com/webhookb2/82b07926-1e5b-4118-9d03-2dfc9ce5f686@a5c5a766-129a-47bb-924c-43805e856501/IncomingWebhook/509acfbf7e9c4989a53acec05645c393/e17fcfac-97ef-4fe8-858b-43d4af8b16f5"
+					},
+					"subscription": {
+						"type": "string",
+						"defaultValue": "Specify subscription id for the pipeline"
+					},
+					"resourceGroup": {
+						"type": "string",
+						"defaultValue": "Specify resource group name for the pipeline"
+					},
+					"runId": {
+						"type": "string",
+						"defaultValue": "@activity('Specify name of the calling pipeline').output['pipelineRunId']"
+					},
+					"name": {
+						"type": "string",
+						"defaultValue": "@activity('Specify name of the calling pipeline').output['pipelineName']"
+					},
+					"triggerTime": {
+						"type": "string",
+						"defaultValue": "@activity('Specify name of the calling pipeline').ExecutionStartTime"
+					},
+					"status": {
+						"type": "string",
+						"defaultValue": "@activity('Specify name of the calling pipeline').Status"
+					},
+					"message": {
+						"type": "string",
+						"defaultValue": "@activity('Specify name of the calling pipeline').Error['message']"
+					},
+					"executionEndTime": {
+						"type": "string",
+						"defaultValue": "@activity('Specify name of the calling pipeline').ExecutionEndTime"
+					},
+					"runDuration": {
+						"type": "string",
+						"defaultValue": "@activity('Specify name of the calling pipeline').Duration"
+					}
+				},
+				"variables": {
+					"Messagecard": {
+						"type": "String"
+					}
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-12-27T10:14:55Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Execute_pipeline_REST_API')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Execute ADF pipeline via REST API call",
+						"description": " Execute ADF pipeline via REST API call",
+						"type": "WebActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": "https://management.azure.com/subscriptions/e3fdc694-417b-44fa-9f88-541270829fbf/resourceGroups/AzureDev/providers/Microsoft.DataFactory/factories/Srilatha-AzureADF/pipelines/CopyPipeline/createRun?api-version=2018-06-01",
+							"method": "POST",
+							"headers": {},
+							"body": {},
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://management.azure.com"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-12-28T14:09:36Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ADLS_1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Connection string to connect storage account.",
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('ADLS_1_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('ADLS_1_accountKey')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ADLS_LS')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('ADLS_LS_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('ADLS_LS_accountKey')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ASQL_LS')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Azure SQL Linked Connection",
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"connectionString": "[parameters('ASQL_LS_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzSQL_LS')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [
+					"Azure Dev"
+				],
+				"type": "SqlServer",
+				"typeProperties": {
+					"connectionString": "[parameters('AzSQL_LS_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureBlob')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('AzureBlob_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/RestAPI_LS')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "RestService",
+				"typeProperties": {
+					"url": "[parameters('RestAPI_LS_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Anonymous"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Rest_Token_Pages')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "RestService",
+				"typeProperties": {
+					"url": "[parameters('Rest_Token_Pages_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Anonymous"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/selfhosted-srilatha')]",
+			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "SelfHosted",
+				"description": "creating new IR to connect with on premises.",
+				"typeProperties": {}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/srilu-selfhost-IR')]",
+			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "SelfHosted",
+				"typeProperties": {
+					"linkedInfo": {
+						"resourceId": "[parameters('srilu-selfhost-IR_properties_typeProperties_linkedInfo_resourceId')]",
+						"authorizationType": "Rbac"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pipeline_log_table')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "pipeline_runs",
+						"type": "WebActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": "https://management.azure.com/subscriptions/e3fdc694-417b-44fa-9f88-541270829fbf/resourceGroups/azuredev/providers/Microsoft.DataFactory/factories/sriluadf/queryPipelineRuns?api-version=2018-06-01",
+							"method": "POST",
+							"headers": {},
+							"body": {
+								"lastUpdatedAfter": "2023-12-01T00:00:44.3345758Z",
+								"lastUpdatedBefore": "2024-01-31T00:00:48.3686473Z"
+							},
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://management.azure.com/"
+							}
+						}
+					},
+					{
+						"name": "ForEach1",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "pipeline_runs",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('pipeline_runs').output.value",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Stored procedure1",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[dbo].[getlogdetails]",
+										"storedProcedureParameters": {
+											"durationInMs": {
+												"value": {
+													"value": "@item().durationInMs",
+													"type": "Expression"
+												},
+												"type": "Int64"
+											},
+											"message": {
+												"value": {
+													"value": "@item().message",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"pipelinename": {
+												"value": {
+													"value": "@item().pipelineName",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"runend": {
+												"value": {
+													"value": "@item().runEnd",
+													"type": "Expression"
+												},
+												"type": "DateTime"
+											},
+											"runid": {
+												"value": {
+													"value": "@item().runId",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"runStart": {
+												"value": {
+													"value": "@item().runStart",
+													"type": "Expression"
+												},
+												"type": "DateTime"
+											},
+											"status": {
+												"value": {
+													"value": "@item().status",
+													"type": "Expression"
+												},
+												"type": "String"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "AzSQL_LS",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2024-01-07T17:09:21Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzSQL_LS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AZsql_DS')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzSQL_LS",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"TableName": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": {
+						"value": "@dataset().TableName",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzSQL_LS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Archie_dataset')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS_1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "Archive",
+						"fileSystem": "samplecontainer"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "DEPARTMENT_ID",
+						"type": "String"
+					},
+					{
+						"name": "DEPARTMENT_NAME",
+						"type": "String"
+					},
+					{
+						"name": "MANAGER_ID",
+						"type": "String"
+					},
+					{
+						"name": "LOCATION_ID",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ADLS_1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_1')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Created to get folders",
+				"linkedServiceName": {
+					"referenceName": "ADLS_1",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"dir": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": {
+							"value": "@dataset().dir",
+							"type": "Expression"
+						},
+						"fileSystem": "samplecontainer"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ADLS_1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DelimitedText1')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS_LS",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "sample2.csv",
+						"folderPath": "input",
+						"fileSystem": "samplecontainer"
+					},
+					"columnDelimiter": "$",
+					"escapeChar": "\\",
+					"firstRowAsHeader": false,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ADLS_LS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Delimited_param')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS_LS",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"FolderName": {
+						"type": "string"
+					},
+					"FileName": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().FileName",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().FolderName",
+							"type": "Expression"
+						},
+						"fileSystem": "samplecontainer"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ADLS_LS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DestinationDataset_jpu')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ASQL_LS",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "ID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "FirstName",
+						"type": "varchar"
+					},
+					{
+						"name": "LastName",
+						"type": "varchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "users"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ASQL_LS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Json1')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS_LS",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"FileName": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().FileName",
+							"type": "Expression"
+						},
+						"folderPath": "input",
+						"fileSystem": "samplecontainer"
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ADLS_LS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Json_dataset')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS_1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "example_2.json",
+						"folderPath": "input",
+						"fileSystem": "samplecontainer"
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ADLS_1')]"
+			]
+		}
+	]
+}
